@@ -35,25 +35,45 @@ interface QuizStore {
   endQuiz: () => void;
   getLeaderboard: () => Player[];
   getCurrentQuestion: () => Question | null;
+  setCurrentPlayerId: (id: string) => void;
+  restoreSession: () => void;
 }
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
-// Simulated bot players for demo
 const botNames = ['Alex', 'Jordan', 'Sam', 'Taylor', 'Casey', 'Morgan', 'Riley', 'Quinn'];
+
+// Store playerId per-tab so host & player tabs don't conflict
+function saveSessionPlayerId(id: string) {
+  sessionStorage.setItem('quizwhiz-player-id', id);
+}
+function getSessionPlayerId(): string | null {
+  return sessionStorage.getItem('quizwhiz-player-id');
+}
 
 export const useQuizStore = create<QuizStore>()(persist((set, get) => ({
   quiz: null,
   currentPlayerId: null,
+
+  setCurrentPlayerId: (id: string) => {
+    saveSessionPlayerId(id);
+    set({ currentPlayerId: id });
+  },
+
+  restoreSession: () => {
+    const savedId = getSessionPlayerId();
+    if (savedId) {
+      set({ currentPlayerId: savedId });
+    }
+  },
 
   createQuiz: (title, numQuestions, timePerQuestion) => {
     const code = generateQuizCode();
     const hostId = generateId();
     const questions = getRandomQuestions(numQuestions);
 
-    // Add some bot players for demo
     const bots: Player[] = botNames.slice(0, 4).map(name => ({
       id: generateId(),
       name,
@@ -61,6 +81,8 @@ export const useQuizStore = create<QuizStore>()(persist((set, get) => ({
       isHost: false,
       answers: [],
     }));
+
+    saveSessionPlayerId(hostId);
 
     set({
       quiz: {
@@ -84,12 +106,19 @@ export const useQuizStore = create<QuizStore>()(persist((set, get) => ({
   joinQuiz: (code, name) => {
     const { quiz } = get();
     if (!quiz || quiz.code !== code) {
-      return { success: false, error: 'Quiz not found' };
+      return { success: false, error: 'Quiz not found. Make sure the code is correct.' };
+    }
+    if (quiz.status !== 'lobby') {
+      return { success: false, error: 'Quiz has already started.' };
     }
     if (quiz.players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-      return { success: false, error: 'Name already taken' };
+      return { success: false, error: 'Name already taken. Choose a different name.' };
     }
     const playerId = generateId();
+
+    // Save this tab's player ID without affecting other tabs
+    saveSessionPlayerId(playerId);
+
     set({
       quiz: {
         ...quiz,
@@ -113,7 +142,6 @@ export const useQuizStore = create<QuizStore>()(persist((set, get) => ({
     if (!quiz) return;
     const nextIndex = quiz.currentQuestionIndex + 1;
 
-    // Simulate bot answers for previous question
     const currentQ = quiz.questions[quiz.currentQuestionIndex];
     const updatedPlayers = quiz.players.map(p => {
       if (p.isHost || p.id === get().currentPlayerId) return p;
@@ -201,5 +229,11 @@ export const useQuizStore = create<QuizStore>()(persist((set, get) => ({
   },
 }), {
   name: 'quizwhiz-store',
-  partialize: (state) => ({ quiz: state.quiz, currentPlayerId: state.currentPlayerId }),
+  partialize: (state) => ({ quiz: state.quiz }),
 }));
+
+// Restore session player ID on load
+const savedId = getSessionPlayerId();
+if (savedId) {
+  useQuizStore.setState({ currentPlayerId: savedId });
+}
