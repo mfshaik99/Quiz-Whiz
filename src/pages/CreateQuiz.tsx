@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Zap, Loader2 } from 'lucide-react';
+import { ArrowLeft, Zap, Loader2, Sparkles } from 'lucide-react';
 import { useQuizStore } from '@/lib/quiz-store';
 import { toast } from 'sonner';
 
@@ -27,7 +27,7 @@ const CreateQuiz = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background bg-particles flex flex-col items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -40,8 +40,11 @@ const CreateQuiz = () => {
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
 
-        <h1 className="font-display text-3xl font-bold text-foreground mb-2">Create a Quiz</h1>
-        <p className="text-muted-foreground mb-8">Set up your quiz and invite players.</p>
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h1 className="font-display text-3xl font-bold text-gradient">Create a Quiz</h1>
+        </div>
+        <p className="text-muted-foreground mb-8">Set up your quiz and invite players worldwide.</p>
 
         <div className="space-y-6">
           <div>
@@ -51,13 +54,13 @@ const CreateQuiz = () => {
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="e.g. Tech Trivia Night"
-              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+              className="w-full px-4 py-3 rounded-xl glass text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
             />
           </div>
 
           <div>
             <label className="text-sm font-medium text-foreground block mb-2">
-              Number of Questions: <span className="text-primary">{numQuestions}</span>
+              Number of Questions: <span className="text-primary font-mono">{numQuestions}</span>
             </label>
             <input
               type="range"
@@ -74,7 +77,7 @@ const CreateQuiz = () => {
 
           <div>
             <label className="text-sm font-medium text-foreground block mb-2">
-              Time per Question: <span className="text-primary">{timePerQuestion}s</span>
+              Time per Question: <span className="text-primary font-mono">{timePerQuestion}s</span>
             </label>
             <input
               type="range"
@@ -91,8 +94,8 @@ const CreateQuiz = () => {
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.02, boxShadow: '0 0 30px hsl(270 85% 62% / 0.5)' }}
+            whileTap={{ scale: 0.97 }}
             onClick={handleCreate}
             disabled={!title.trim() || creating}
             className="w-full px-6 py-4 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-lg glow-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"

@@ -2,23 +2,25 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuizStore } from '@/lib/quiz-store';
+import { playCorrectSound, playWrongSound, playTickSound, playCountdownUrgent, playTransitionSound } from '@/lib/sounds';
+import CircularTimer from '@/components/CircularTimer';
+import AnimatedLeaderboard from '@/components/AnimatedLeaderboard';
 import confetti from 'canvas-confetti';
-import { Trophy, Clock, Square, ChevronRight, Loader2 } from 'lucide-react';
+import { Trophy, Square, ChevronRight, Loader2, Sparkles } from 'lucide-react';
 
 const optionColors = [
-  'bg-quiz-red hover-quiz-red',
-  'bg-quiz-blue hover-quiz-blue',
-  'bg-quiz-yellow hover-quiz-yellow',
-  'bg-quiz-green hover-quiz-green',
+  { bg: 'bg-quiz-red', hover: 'hover-quiz-red', glow: 'hsl(var(--quiz-red) / 0.4)' },
+  { bg: 'bg-quiz-blue', hover: 'hover-quiz-blue', glow: 'hsl(var(--quiz-blue) / 0.4)' },
+  { bg: 'bg-quiz-yellow', hover: 'hover-quiz-yellow', glow: 'hsl(var(--quiz-yellow) / 0.4)' },
+  { bg: 'bg-quiz-green', hover: 'hover-quiz-green', glow: 'hsl(var(--quiz-green) / 0.4)' },
 ];
 
-const optionLabels = ['A', 'B', 'C', 'D'];
+const optionIcons = ['◆', '●', '▲', '★'];
 
 const QuizPlay = () => {
   const navigate = useNavigate();
   const { code } = useParams();
 
-  // Use individual selectors to minimize re-renders
   const quiz = useQuizStore(s => s.quiz);
   const sessionId = useQuizStore(s => s.sessionId);
   const fetchQuiz = useQuizStore(s => s.fetchQuiz);
@@ -26,7 +28,6 @@ const QuizPlay = () => {
   const nextQuestion = useQuizStore(s => s.nextQuestion);
   const endQuiz = useQuizStore(s => s.endQuiz);
   const getCurrentQuestion = useQuizStore(s => s.getCurrentQuestion);
-  const getLeaderboard = useQuizStore(s => s.getLeaderboard);
   const subscribeToQuiz = useQuizStore(s => s.subscribeToQuiz);
 
   const [timeLeft, setTimeLeft] = useState(0);
@@ -35,6 +36,7 @@ const QuizPlay = () => {
   const [showResult, setShowResult] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [answerResult, setAnswerResult] = useState<'correct' | 'wrong' | 'timeout' | null>(null);
   const prevQuestionIndexRef = useRef<number>(-999);
 
   const question = getCurrentQuestion();
@@ -42,7 +44,6 @@ const QuizPlay = () => {
   const isHost = myPlayer?.isHost;
   const currentQuestionIndex = quiz?.currentQuestionIndex ?? -1;
 
-  // Fetch and subscribe
   useEffect(() => {
     if (code) fetchQuiz(code);
   }, [code]);
@@ -54,15 +55,14 @@ const QuizPlay = () => {
     }
   }, [quiz?.id]);
 
-  // Redirect if quiz ended
   useEffect(() => {
     if (quiz?.status === 'results') {
-      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
       navigate(`/results/${code}`);
     }
   }, [quiz?.status, navigate, code]);
 
-  // Reset local state when question index changes (works for both host and non-host)
+  // Reset on question change
   useEffect(() => {
     if (currentQuestionIndex === prevQuestionIndexRef.current) return;
     prevQuestionIndexRef.current = currentQuestionIndex;
@@ -72,12 +72,14 @@ const QuizPlay = () => {
       setShowResult(false);
       setShowLeaderboard(false);
       setSubmitting(false);
+      setAnswerResult(null);
       setTimeLeft(quiz.timePerQuestion);
       setAnswerStartTime(Date.now());
+      playTransitionSound();
     }
   }, [currentQuestionIndex, quiz?.timePerQuestion]);
 
-  // Timer - driven by timeLeft state, resets via the effect above
+  // Timer with sound effects
   useEffect(() => {
     if (!quiz || !question || showResult || showLeaderboard || currentQuestionIndex < 0) return;
 
@@ -85,9 +87,13 @@ const QuizPlay = () => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(interval);
+          setAnswerResult('timeout');
           setShowResult(true);
           return 0;
         }
+        // Sound cues
+        if (prev <= 6 && prev > 1) playCountdownUrgent();
+        else if (prev % 5 === 0) playTickSound();
         return prev - 1;
       });
     }, 1000);
@@ -101,14 +107,20 @@ const QuizPlay = () => {
     const timeMs = Date.now() - answerStartTime;
     setSelectedAnswer(index);
 
-    await submitAnswer(question.id, index, timeMs);
+    const isCorrect = index === question.correctIndex;
 
-    if (index === question.correctIndex) {
-      confetti({ particleCount: 30, spread: 50, origin: { y: 0.7 } });
+    if (isCorrect) {
+      playCorrectSound();
+      setAnswerResult('correct');
+      confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 }, colors: ['#22c55e', '#10b981', '#34d399'] });
+    } else {
+      playWrongSound();
+      setAnswerResult('wrong');
     }
 
+    await submitAnswer(question.id, index, timeMs);
     setSubmitting(false);
-    setTimeout(() => setShowResult(true), 800);
+    setTimeout(() => setShowResult(true), 900);
   }, [selectedAnswer, showResult, question, submitting, answerStartTime, submitAnswer]);
 
   const handleNext = useCallback(async () => {
@@ -122,151 +134,184 @@ const QuizPlay = () => {
     setShowLeaderboard(true);
   }, [code, fetchQuiz]);
 
+  // Loading skeleton
   if (!quiz || !question) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background bg-particles flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-secondary animate-pulse" />
+          <div className="w-48 h-4 rounded-full bg-secondary animate-pulse" />
+          <div className="w-32 h-4 rounded-full bg-secondary animate-pulse" />
+        </div>
       </div>
     );
   }
 
-  const timerPercent = (timeLeft / quiz.timePerQuestion) * 100;
-  const leaderboard = getLeaderboard();
-
+  // Leaderboard view
   if (showLeaderboard) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-background bg-particles flex flex-col items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           className="w-full max-w-md"
         >
-          <h2 className="font-display text-2xl font-bold text-foreground text-center mb-6">
-            <Trophy className="w-6 h-6 text-primary inline mr-2" />
-            Leaderboard
-          </h2>
-          <div className="space-y-2 mb-8">
-            {leaderboard.slice(0, 8).map((player, i) => (
-              <motion.div
-                key={player.id}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: i * 0.08 }}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl ${
-                  player.sessionId === sessionId ? 'bg-primary/20 border border-primary/40' : 'bg-card border border-border'
-                }`}
+          <motion.h2
+            initial={{ y: -10 }}
+            animate={{ y: 0 }}
+            className="font-display text-2xl font-bold text-foreground text-center mb-6 flex items-center justify-center gap-2"
+          >
+            <Trophy className="w-6 h-6 text-primary" />
+            <span className="text-gradient">Leaderboard</span>
+          </motion.h2>
+
+          <AnimatedLeaderboard players={quiz.players} sessionId={sessionId} />
+
+          <div className="mt-8">
+            {isHost ? (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={handleNext}
+                className="w-full px-6 py-4 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-lg glow-primary flex items-center justify-center gap-2"
               >
-                <div className="flex items-center gap-3">
-                  <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                    i === 0 ? 'bg-quiz-yellow text-background' : i === 1 ? 'bg-muted-foreground/30 text-foreground' : i === 2 ? 'bg-quiz-red/60 text-foreground' : 'bg-secondary text-muted-foreground'
-                  }`}>
-                    {i + 1}
-                  </span>
-                  <span className="text-foreground font-medium">{player.name}</span>
-                </div>
-                <span className="font-mono font-bold text-primary">{player.score}</span>
-              </motion.div>
-            ))}
+                <ChevronRight className="w-5 h-5" />
+                Next Question
+              </motion.button>
+            ) : (
+              <p className="text-center text-muted-foreground animate-pulse-glow text-sm">
+                Waiting for host to continue...
+              </p>
+            )}
           </div>
-
-          {isHost && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleNext}
-              className="w-full px-6 py-4 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-lg glow-primary flex items-center justify-center gap-2"
-            >
-              <ChevronRight className="w-5 h-5" />
-              Next Question
-            </motion.button>
-          )}
-
-          {!isHost && (
-            <p className="text-center text-muted-foreground animate-pulse">Waiting for host...</p>
-          )}
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col px-4 py-6">
+    <div className="min-h-screen bg-background bg-particles flex flex-col px-4 py-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 max-w-2xl mx-auto w-full">
-        <span className="text-sm text-muted-foreground">
-          Q{quiz.currentQuestionIndex + 1}/{quiz.questions.length}
-        </span>
-        <span className="text-xs px-2 py-1 rounded bg-secondary text-muted-foreground">
+      <div className="flex items-center justify-between mb-2 max-w-2xl mx-auto w-full">
+        <motion.span
+          key={currentQuestionIndex}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-sm font-medium text-muted-foreground glass px-3 py-1 rounded-full"
+        >
+          {quiz.currentQuestionIndex + 1} / {quiz.questions.length}
+        </motion.span>
+        <span className="text-xs px-3 py-1 rounded-full glass text-neon-cyan font-medium">
           {question.category}
         </span>
         {isHost && (
-          <button onClick={() => endQuiz()} className="text-xs text-destructive hover:underline flex items-center gap-1">
+          <button onClick={() => endQuiz()} className="text-xs text-destructive hover:text-destructive/80 flex items-center gap-1 glass px-3 py-1 rounded-full transition-colors">
             <Square className="w-3 h-3" /> End
           </button>
         )}
       </div>
 
-      {/* Timer bar */}
-      <div className="w-full max-w-2xl mx-auto mb-6">
-        <div className="h-2 rounded-full bg-secondary overflow-hidden">
-          <motion.div
-            className="h-full rounded-full"
-            style={{
-              backgroundColor: timerPercent > 30 ? 'hsl(var(--primary))' : timerPercent > 10 ? 'hsl(var(--quiz-yellow))' : 'hsl(var(--destructive))',
-            }}
-            initial={{ width: '100%' }}
-            animate={{ width: `${timerPercent}%` }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
-        <div className="flex items-center justify-center gap-1 mt-2">
-          <Clock className="w-4 h-4 text-muted-foreground" />
-          <span className={`font-mono text-lg font-bold ${timeLeft <= 5 ? 'text-destructive' : 'text-foreground'}`}>
-            {timeLeft}s
-          </span>
-        </div>
+      {/* Timer */}
+      <div className="flex justify-center my-4">
+        <CircularTimer timeLeft={timeLeft} totalTime={quiz.timePerQuestion} size={90} />
       </div>
 
       {/* Question */}
       <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
-        <motion.h2
-          key={question.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-display text-2xl sm:text-3xl font-bold text-foreground text-center mb-10"
-        >
-          {question.text}
-        </motion.h2>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={question.id}
+            initial={{ opacity: 0, y: 20, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.97 }}
+            transition={{ duration: 0.25 }}
+            className="glass-strong rounded-2xl p-6 sm:p-8 mb-8 w-full text-center card-3d"
+          >
+            <Sparkles className="w-5 h-5 text-primary mx-auto mb-3 opacity-60" />
+            <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground leading-tight">
+              {question.text}
+            </h2>
+          </motion.div>
+        </AnimatePresence>
 
         {/* Options */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
           {question.options.map((option, i) => {
             const isCorrect = i === question.correctIndex;
             const isSelected = selectedAnswer === i;
-            let extraClasses = '';
+            let stateClass = '';
+            let glowStyle = {};
 
             if (showResult) {
-              if (isCorrect) extraClasses = 'ring-4 ring-accent scale-[1.02]';
-              else if (isSelected && !isCorrect) extraClasses = 'opacity-50 scale-95';
-              else extraClasses = 'opacity-40';
+              if (isCorrect) {
+                stateClass = 'ring-2 ring-accent scale-[1.02] glow-correct';
+              } else if (isSelected && !isCorrect) {
+                stateClass = 'animate-shake glow-wrong opacity-70';
+              } else {
+                stateClass = 'opacity-30 scale-[0.97]';
+              }
+            } else if (isSelected) {
+              stateClass = 'ring-2 ring-foreground/50 scale-[1.02]';
+              glowStyle = { boxShadow: `0 0 20px ${optionColors[i].glow}` };
             }
 
             return (
               <motion.button
                 key={`${currentQuestionIndex}-${i}`}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={!showResult && selectedAnswer === null ? { scale: 1.02 } : {}}
-                whileTap={!showResult && selectedAnswer === null ? { scale: 0.97 } : {}}
+                transition={{ delay: i * 0.06, duration: 0.2 }}
+                whileHover={!showResult && selectedAnswer === null ? {
+                  scale: 1.03,
+                  boxShadow: `0 0 25px ${optionColors[i].glow}`,
+                } : {}}
+                whileTap={!showResult && selectedAnswer === null ? { scale: 0.96 } : {}}
                 onClick={() => handleAnswer(i)}
                 disabled={showResult || selectedAnswer !== null || submitting}
-                className={`${optionColors[i]} ${extraClasses} p-5 rounded-xl text-left transition-all duration-300 flex items-start gap-3`}
+                style={glowStyle}
+                className={`${optionColors[i].bg} ${optionColors[i].hover} ${stateClass} p-4 sm:p-5 rounded-xl text-left transition-all duration-200 flex items-start gap-3 relative overflow-hidden`}
               >
-                <span className="w-8 h-8 rounded-lg bg-background/20 flex items-center justify-center font-bold text-sm shrink-0">
-                  {optionLabels[i]}
+                {/* Ripple on select */}
+                {isSelected && !showResult && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0.5 }}
+                    animate={{ scale: 4, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 bg-foreground/20 rounded-full"
+                    style={{ transformOrigin: 'center' }}
+                  />
+                )}
+
+                <span className="w-8 h-8 rounded-lg bg-background/20 flex items-center justify-center font-bold text-sm shrink-0 backdrop-blur-sm">
+                  {optionIcons[i]}
                 </span>
-                <span className="font-medium text-primary-foreground text-base sm:text-lg">{option}</span>
+                <span className="font-medium text-primary-foreground text-base sm:text-lg relative z-10">
+                  {option}
+                </span>
+
+                {/* Checkmark for correct */}
+                {showResult && isCorrect && (
+                  <motion.span
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.1 }}
+                    className="ml-auto text-2xl"
+                  >
+                    ✓
+                  </motion.span>
+                )}
+
+                {/* X for wrong selected */}
+                {showResult && isSelected && !isCorrect && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="ml-auto text-2xl"
+                  >
+                    ✗
+                  </motion.span>
+                )}
               </motion.button>
             );
           })}
@@ -277,43 +322,63 @@ const QuizPlay = () => {
           {showResult && (
             <motion.div
               key="result-feedback"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               className="mt-8 text-center"
             >
-              {selectedAnswer === question.correctIndex ? (
-                <p className="text-accent font-display text-xl font-bold">🎉 Correct!</p>
-              ) : selectedAnswer !== null ? (
-                <p className="text-destructive font-display text-xl font-bold">✗ Wrong answer</p>
-              ) : (
-                <p className="text-muted-foreground font-display text-xl">⏱ Time's up!</p>
-              )}
-
-              {isHost && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleShowLeaderboard}
-                  className="mt-4 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold flex items-center gap-2 mx-auto"
+              {answerResult === 'correct' && (
+                <motion.p
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: [0.8, 1.1, 1] }}
+                  className="text-accent font-display text-2xl font-bold glow-accent inline-block px-6 py-2 rounded-xl"
                 >
-                  <Trophy className="w-4 h-4" /> Show Leaderboard
-                </motion.button>
+                  🎉 Correct!
+                </motion.p>
+              )}
+              {answerResult === 'wrong' && (
+                <p className="text-destructive font-display text-2xl font-bold">✗ Wrong!</p>
+              )}
+              {answerResult === 'timeout' && (
+                <p className="text-muted-foreground font-display text-2xl">⏱ Time's up!</p>
               )}
 
-              {!isHost && (
-                <p className="mt-4 text-muted-foreground animate-pulse text-sm">Waiting for host to continue...</p>
-              )}
+              <div className="mt-4">
+                {isHost ? (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handleShowLeaderboard}
+                    className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold flex items-center gap-2 mx-auto glow-primary"
+                  >
+                    <Trophy className="w-4 h-4" /> Leaderboard
+                  </motion.button>
+                ) : (
+                  <p className="text-muted-foreground animate-pulse-glow text-sm">Waiting for host...</p>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       {/* Score footer */}
-      <div className="text-center mt-4">
-        <span className="text-sm text-muted-foreground">Your Score: </span>
-        <span className="font-mono font-bold text-primary">{myPlayer?.score || 0}</span>
-      </div>
+      <motion.div
+        className="text-center mt-4 glass rounded-full px-6 py-2 mx-auto"
+        layout
+      >
+        <span className="text-sm text-muted-foreground">Score: </span>
+        <motion.span
+          key={myPlayer?.score}
+          initial={{ scale: 1 }}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 0.3 }}
+          className="font-mono font-bold text-primary text-lg"
+        >
+          {myPlayer?.score || 0}
+        </motion.span>
+      </motion.div>
     </div>
   );
 };
