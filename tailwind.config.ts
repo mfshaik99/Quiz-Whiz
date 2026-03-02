@@ -57,6 +57,11 @@ export default {
           yellow: "hsl(var(--quiz-yellow))",
           green: "hsl(var(--quiz-green))",
         },
+        neon: {
+          pink: "hsl(var(--neon-pink))",
+          cyan: "hsl(var(--neon-cyan))",
+          purple: "hsl(var(--neon-purple))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -90,12 +95,36 @@ export default {
           from: { transform: "translateY(20px)", opacity: "0" },
           to: { transform: "translateY(0)", opacity: "1" },
         },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "20%": { transform: "translateX(-6px)" },
+          "40%": { transform: "translateX(6px)" },
+          "60%": { transform: "translateX(-4px)" },
+          "80%": { transform: "translateX(4px)" },
+        },
+        "count-pulse": {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.15)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "timer-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.05)", opacity: "0.8" },
+        },
+        "glow-border": {
+          "0%, 100%": { borderColor: "hsl(var(--primary) / 0.4)" },
+          "50%": { borderColor: "hsl(var(--primary) / 0.8)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "slide-up": "slide-up 0.5s ease-out",
+        "shake": "shake 0.4s ease-in-out",
+        "count-pulse": "count-pulse 0.3s ease-out",
+        "timer-pulse": "timer-pulse 1s ease-in-out infinite",
+        "glow-border": "glow-border 2s ease-in-out infinite",
       },
     },
   },

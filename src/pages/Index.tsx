@@ -1,19 +1,12 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Users, Trophy, ArrowRight } from 'lucide-react';
+import { Zap, Users, Trophy, Globe, Sparkles } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 overflow-hidden relative">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-64 h-64 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-1/4 -right-32 w-64 h-64 rounded-full bg-accent/10 blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-background bg-particles flex flex-col items-center justify-center px-4 overflow-hidden relative">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -24,26 +17,27 @@ const Index = () => {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border mb-8"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
         >
-          <Zap className="w-4 h-4 text-primary" />
-          <span className="text-sm text-muted-foreground">Real-time competitive quizzing</span>
+          <Globe className="w-4 h-4 text-neon-cyan" />
+          <span className="text-sm text-muted-foreground">Global real-time competition</span>
+          <Sparkles className="w-3 h-3 text-primary" />
         </motion.div>
 
         <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold mb-6 tracking-tight">
-          Quiz<span className="text-gradient">Whiz</span>
+          Quiz<span className="text-gradient-neon">Whiz</span>
         </h1>
 
         <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-md mx-auto">
-          Create quizzes, challenge friends, and compete in real-time. Fast, fun, and free.
+          Create quizzes, challenge anyone worldwide, and compete in real-time. Fast, fun, and free.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <motion.button
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: 1.03, boxShadow: '0 0 30px hsl(270 85% 62% / 0.5)' }}
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate('/create')}
-            className="px-8 py-4 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-lg glow-primary flex items-center justify-center gap-2 transition-colors"
+            className="px-8 py-4 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-lg glow-primary flex items-center justify-center gap-2 transition-all"
           >
             <Zap className="w-5 h-5" />
             Create Quiz
@@ -53,7 +47,7 @@ const Index = () => {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate('/join')}
-            className="px-8 py-4 rounded-xl bg-secondary text-secondary-foreground font-display font-semibold text-lg border border-border hover:border-primary/50 flex items-center justify-center gap-2 transition-colors"
+            className="px-8 py-4 rounded-xl glass text-foreground font-display font-semibold text-lg hover:border-primary/50 flex items-center justify-center gap-2 transition-all"
           >
             <Users className="w-5 h-5" />
             Join Quiz
@@ -69,15 +63,19 @@ const Index = () => {
         className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-4 mt-20 max-w-3xl w-full"
       >
         {[
-          { icon: Zap, title: 'Instant Play', desc: 'No signup needed. Just a name and a code.' },
-          { icon: Trophy, title: 'Live Scoring', desc: 'Faster answers earn more points.' },
-          { icon: Users, title: 'Multiplayer', desc: 'Compete with friends in real-time.' },
+          { icon: Zap, title: 'Instant Play', desc: 'No signup needed. Just a name and a code.', color: 'text-neon-cyan' },
+          { icon: Trophy, title: 'Live Scoring', desc: 'Faster answers earn more points.', color: 'text-quiz-yellow' },
+          { icon: Globe, title: 'Play Anywhere', desc: 'Compete with anyone worldwide.', color: 'text-primary' },
         ].map((f, i) => (
-          <div key={i} className="bg-card border border-border rounded-xl p-6 text-center">
-            <f.icon className="w-8 h-8 text-primary mx-auto mb-3" />
+          <motion.div
+            key={i}
+            whileHover={{ y: -4, boxShadow: '0 10px 30px hsl(var(--primary) / 0.15)' }}
+            className="glass rounded-xl p-6 text-center transition-all card-3d"
+          >
+            <f.icon className={`w-8 h-8 ${f.color} mx-auto mb-3`} />
             <h3 className="font-display font-semibold text-foreground mb-1">{f.title}</h3>
             <p className="text-sm text-muted-foreground">{f.desc}</p>
-          </div>
+          </motion.div>
         ))}
       </motion.div>
     </div>
