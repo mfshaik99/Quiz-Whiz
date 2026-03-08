@@ -100,6 +100,68 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          correct_answers: number
+          created_at: string
+          id: string
+          score: number
+          time_taken_ms: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          correct_answers: number
+          created_at?: string
+          id?: string
+          score?: number
+          time_taken_ms?: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Update: {
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          score?: number
+          time_taken_ms?: number
+          topic?: string
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quizzes: {
         Row: {
           code: string
