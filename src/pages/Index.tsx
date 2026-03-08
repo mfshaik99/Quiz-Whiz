@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Users, Trophy, Sparkles, Award, BookOpen, ArrowRight, Brain, Timer, BarChart3 } from 'lucide-react';
+import { Zap, Users, Trophy, Award, BookOpen, ArrowRight, Brain, Timer, BarChart3, User } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import PlayerStats from '@/components/PlayerStats';
 import BadgeShowcase from '@/components/BadgeShowcase';
 import FloatingParticles from '@/components/FloatingParticles';
 import Logo from '@/components/Logo';
 import { useGamification } from '@/lib/gamification';
+import { useAuth } from '@/hooks/useAuth';
 import { TOPICS } from '@/data/questions';
 
 const container = {
@@ -20,6 +21,7 @@ const Index = () => {
   const navigate = useNavigate();
   const checkStreak = useGamification(s => s.checkStreak);
   const quizzesPlayed = useGamification(s => s.quizzesPlayed);
+  const { user, profile } = useAuth();
 
   useEffect(() => { checkStreak(); }, []);
 
@@ -30,7 +32,29 @@ const Index = () => {
       {/* Nav bar */}
       <nav className="relative z-20 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
         <Logo size="sm" />
-        <ThemeToggle />
+        <div className="flex items-center gap-3">
+          {user ? (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl glass-premium text-sm font-medium text-foreground"
+            >
+              <User className="w-4 h-4 text-primary" />
+              {profile?.display_name || 'Dashboard'}
+            </motion.button>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/auth')}
+              className="px-4 py-2 rounded-xl glass-premium text-sm font-medium text-foreground hover:border-primary/30 transition-colors"
+            >
+              Sign In
+            </motion.button>
+          )}
+          <ThemeToggle />
+        </div>
       </nav>
 
       {/* Hero section */}
@@ -41,7 +65,6 @@ const Index = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-3xl"
         >
-          {/* Pill badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -52,7 +75,9 @@ const Index = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
             </span>
-            <span className="text-sm font-medium text-muted-foreground">Free · No signup · Play instantly</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              {user ? `Playing as ${profile?.display_name}` : 'Free · No signup · Play instantly'}
+            </span>
           </motion.div>
 
           <Logo size="xl" />
@@ -117,7 +142,7 @@ const Index = () => {
           className="text-center mb-8"
         >
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
-            10 Topics. <span className="text-gradient">250+ Questions.</span>
+            10 Topics. <span className="text-gradient">500+ Questions.</span>
           </h2>
           <p className="text-muted-foreground mt-2">Pick your area of expertise and prove your knowledge</p>
         </motion.div>
