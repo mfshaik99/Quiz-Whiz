@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Users, Trophy, Globe, Sparkles, Flame, Star, Award } from 'lucide-react';
+import { Zap, Users, Trophy, Globe, Sparkles, Award, BookOpen } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import PlayerStats from '@/components/PlayerStats';
 import BadgeShowcase from '@/components/BadgeShowcase';
