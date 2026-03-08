@@ -3,12 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useSoloStore } from '@/lib/solo-store';
 import { useGamification } from '@/lib/gamification';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import NewBadgeToast from '@/components/NewBadgeToast';
 import ThemeToggle from '@/components/ThemeToggle';
 import FloatingParticles from '@/components/FloatingParticles';
 import confetti from 'canvas-confetti';
-import { Trophy, Home, RotateCcw, Star, Share2, Medal, Clock, Target, CheckCircle2, XCircle } from 'lucide-react';
+import { Trophy, Home, RotateCcw, Star, Share2, Medal, Clock, Target, CheckCircle2, XCircle, UserPlus } from 'lucide-react';
 import { TOPICS } from '@/data/questions';
 import type { Badge } from '@/lib/gamification';
 
@@ -26,6 +27,7 @@ const SoloResults = () => {
   const gamBadges = useGamification(s => s.badges);
   const level = useGamification(s => s.level);
   const xp = useGamification(s => s.xp);
+  const { user } = useAuth();
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [newBadge, setNewBadge] = useState<Badge | null>(null);
@@ -40,7 +42,7 @@ const SoloResults = () => {
     recordedRef.current = true;
 
     const badgesBefore = gamBadges.map(b => b.id);
-    finishQuiz();
+    finishQuiz(user?.id);
     recordQuizResult(correctCount, questions.length, false);
 
     setTimeout(() => {
@@ -141,6 +143,34 @@ const SoloResults = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Guest CTA to sign up */}
+        {!user && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="glass-premium rounded-2xl p-4 mb-5 border border-primary/20"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <UserPlus className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">Save your progress!</p>
+                <p className="text-xs text-muted-foreground">Create an account to track history & compete globally.</p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/auth')}
+                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold shrink-0"
+              >
+                Sign Up
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
 
         {/* XP + Level */}
         <motion.div
@@ -244,7 +274,7 @@ const SoloResults = () => {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => { reset(); navigate('/'); }}
+            onClick={() => { reset(); navigate(user ? '/dashboard' : '/home'); }}
             className="px-6 py-3.5 rounded-2xl glass-premium text-foreground font-display font-semibold flex items-center gap-2"
           >
             <Home className="w-4 h-4" /> Home
