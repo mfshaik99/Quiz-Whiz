@@ -16,7 +16,7 @@ export interface SoloQuizState {
   startQuiz: (topic: string, count: number) => void;
   submitAnswer: (selectedIndex: number, timeMs: number) => void;
   nextQuestion: () => void;
-  finishQuiz: () => Promise<void>;
+  finishQuiz: (userId?: string) => Promise<void>;
   reset: () => void;
   getCurrentQuestion: () => Question | null;
   getProgress: () => number;
@@ -70,11 +70,12 @@ export const useSoloStore = create<SoloQuizState>((set, get) => ({
     }
   },
 
-  finishQuiz: async () => {
+  finishQuiz: async (userId?: string) => {
     const { playerName, topic, totalScore, questions, answers } = get();
     const correctCount = answers.filter(a => a.correct).length;
     const totalTimeMs = answers.reduce((sum, a) => sum + a.timeMs, 0);
 
+    // Always save to solo_scores (guest leaderboard)
     await supabase.from('solo_scores').insert({
       player_name: playerName,
       topic,
@@ -83,6 +84,18 @@ export const useSoloStore = create<SoloQuizState>((set, get) => ({
       correct_answers: correctCount,
       time_taken_ms: totalTimeMs,
     });
+
+    // If logged in, also save to quiz_attempts
+    if (userId) {
+      await supabase.from('quiz_attempts').insert({
+        user_id: userId,
+        topic,
+        score: totalScore,
+        total_questions: questions.length,
+        correct_answers: correctCount,
+        time_taken_ms: totalTimeMs,
+      });
+    }
   },
 
   reset: () => set({
