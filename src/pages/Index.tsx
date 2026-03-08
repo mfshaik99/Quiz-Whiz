@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Users, Trophy, Award, BookOpen, ArrowRight, Brain, Timer, BarChart3, User } from 'lucide-react';
+import { Zap, Users, Trophy, Award, BookOpen, ArrowRight, Brain, Timer, BarChart3, User, Sparkles, ChevronRight } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import PlayerStats from '@/components/PlayerStats';
 import BadgeShowcase from '@/components/BadgeShowcase';
@@ -11,11 +11,11 @@ import { useGamification } from '@/lib/gamification';
 import { useAuth } from '@/hooks/useAuth';
 import { TOPICS } from '@/data/questions';
 
-const container = {
+const stagger = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
 };
-const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
+const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } };
 
 const Index = () => {
   const navigate = useNavigate();
@@ -29,26 +29,26 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-mesh relative overflow-hidden">
       <FloatingParticles />
 
-      {/* Nav bar */}
-      <nav className="relative z-20 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+      {/* Nav */}
+      <nav className="relative z-20 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
         <Logo size="sm" />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {user ? (
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl glass-premium text-sm font-medium text-foreground"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-sm font-medium text-foreground"
             >
               <User className="w-4 h-4 text-primary" />
               {profile?.display_name || 'Dashboard'}
             </motion.button>
           ) : (
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => navigate('/auth')}
-              className="px-4 py-2 rounded-xl glass-premium text-sm font-medium text-foreground hover:border-primary/30 transition-colors"
+              className="px-4 py-2.5 rounded-xl glass-card text-sm font-medium text-foreground hover:border-primary/20 transition-colors"
             >
               Sign In
             </motion.button>
@@ -57,26 +57,26 @@ const Index = () => {
         </div>
       </nav>
 
-      {/* Hero section */}
-      <section className="relative z-10 flex flex-col items-center px-4 pt-12 pb-20 sm:pt-20 sm:pb-28">
+      {/* Hero */}
+      <section className="relative z-10 flex flex-col items-center px-4 pt-10 pb-20 sm:pt-16 sm:pb-28">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-3xl"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-premium mb-8"
+            transition={{ delay: 0.15 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-10"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
             </span>
-            <span className="text-sm font-medium text-muted-foreground">
-              {user ? `Playing as ${profile?.display_name}` : 'Free · No signup · Play instantly'}
+            <span className="text-xs font-semibold tracking-wide text-muted-foreground">
+              {user ? `Welcome, ${profile?.display_name}` : 'Free · No signup · Play instantly'}
             </span>
           </motion.div>
 
@@ -85,24 +85,24 @@ const Index = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-lg sm:text-xl text-muted-foreground mt-6 mb-12 max-w-lg mx-auto leading-relaxed"
+            transition={{ delay: 0.35 }}
+            className="text-base sm:text-lg text-muted-foreground mt-6 mb-12 max-w-lg mx-auto leading-relaxed"
           >
             The ultimate quiz platform. Pick a topic, challenge yourself, and climb the global leaderboard.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.45 }}
             className="flex flex-col sm:flex-row gap-3 justify-center"
           >
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/solo')}
-              className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-display font-semibold text-lg shadow-premium flex items-center justify-center gap-3 transition-all"
+              className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-neon-purple text-primary-foreground font-display font-semibold text-lg shadow-glow-primary flex items-center justify-center gap-3 transition-all btn-ripple"
             >
               <BookOpen className="w-5 h-5" />
               Start Playing
@@ -113,7 +113,7 @@ const Index = () => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/create')}
-              className="px-8 py-4 rounded-2xl glass-premium text-foreground font-display font-semibold text-lg flex items-center justify-center gap-3 transition-all hover:border-primary/30"
+              className="px-8 py-4 rounded-2xl glass-premium text-foreground font-display font-semibold text-lg flex items-center justify-center gap-3 transition-all hover:border-primary/20"
             >
               <Zap className="w-5 h-5 text-primary" />
               Create Quiz
@@ -123,7 +123,7 @@ const Index = () => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/join')}
-              className="px-8 py-4 rounded-2xl glass-premium text-foreground font-display font-semibold text-lg flex items-center justify-center gap-3 transition-all hover:border-accent/30"
+              className="px-8 py-4 rounded-2xl glass-premium text-foreground font-display font-semibold text-lg flex items-center justify-center gap-3 transition-all hover:border-accent/20"
             >
               <Users className="w-5 h-5 text-accent" />
               Join Quiz
@@ -132,23 +132,53 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* Topics preview */}
+      {/* Stats ribbon */}
+      <section className="relative z-10 px-4 pb-16 max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="grid grid-cols-3 gap-4"
+        >
+          {[
+            { value: '550+', label: 'Questions', icon: Brain },
+            { value: '10', label: 'Topics', icon: BookOpen },
+            { value: '∞', label: 'Free Plays', icon: Sparkles },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="glass-card rounded-2xl p-5 text-center"
+            >
+              <stat.icon className="w-5 h-5 text-primary mx-auto mb-2.5" />
+              <p className="font-display text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1 font-medium">{stat.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* Topics */}
       <section className="relative z-10 px-4 pb-16 max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-10"
         >
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
-            10 Topics. <span className="text-gradient">500+ Questions.</span>
+            Explore <span className="text-gradient">Topics</span>
           </h2>
-          <p className="text-muted-foreground mt-2">Pick your area of expertise and prove your knowledge</p>
+          <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+            Pick your area of expertise and prove your knowledge
+          </p>
         </motion.div>
 
         <motion.div
-          variants={container}
+          variants={stagger}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
@@ -157,51 +187,51 @@ const Index = () => {
           {TOPICS.map((topic) => (
             <motion.button
               key={topic.id}
-              variants={item}
-              whileHover={{ scale: 1.05, y: -4 }}
-              whileTap={{ scale: 0.95 }}
+              variants={fadeUp}
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => navigate(`/solo/setup/${topic.id}`)}
-              className="glass-premium rounded-2xl p-4 text-center card-lift group"
+              className="glass-card rounded-2xl p-4 sm:p-5 text-center card-lift group"
             >
-              <span className="text-3xl block mb-2 group-hover:animate-float">{topic.icon}</span>
+              <span className="text-3xl sm:text-4xl block mb-2 group-hover:scale-110 transition-transform duration-300">{topic.icon}</span>
               <span className="text-xs font-semibold text-foreground">{topic.name}</span>
             </motion.button>
           ))}
         </motion.div>
       </section>
 
-      {/* Feature cards */}
+      {/* Features */}
       <section className="relative z-10 px-4 pb-20 max-w-5xl mx-auto">
         <motion.div
-          variants={container}
+          variants={stagger}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {[
-            { icon: Brain, title: 'Smart Questions', desc: 'Curated questions with difficulty levels and detailed explanations.', color: 'text-primary' },
+            { icon: Brain, title: 'Smart Questions', desc: 'Curated questions with difficulty levels and explanations.', color: 'text-primary' },
             { icon: Timer, title: 'Timed Challenges', desc: 'Race against the clock. Faster answers earn more points.', color: 'text-neon-cyan' },
-            { icon: Trophy, title: 'Global Leaderboard', desc: 'Compete worldwide. Your scores persist across sessions.', color: 'text-gold' },
-            { icon: Award, title: 'Badges & XP', desc: 'Unlock achievements, earn XP, and level up your profile.', color: 'text-neon-purple' },
+            { icon: Trophy, title: 'Global Leaderboard', desc: 'Compete worldwide. Scores persist across sessions.', color: 'text-gold' },
+            { icon: Award, title: 'Badges & XP', desc: 'Unlock achievements, earn XP, and level up.', color: 'text-neon-purple' },
           ].map((f, i) => (
             <motion.div
               key={i}
-              variants={item}
-              whileHover={{ y: -6 }}
-              className="glass-premium rounded-2xl p-6 transition-all group"
+              variants={fadeUp}
+              whileHover={{ y: -5 }}
+              className="glass-card rounded-2xl p-6 transition-all group"
             >
-              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:shadow-glow-primary transition-shadow">
-                <f.icon className={`w-6 h-6 ${f.color}`} />
+              <div className="w-11 h-11 rounded-xl bg-secondary/80 flex items-center justify-center mb-4 group-hover:shadow-glow-primary transition-shadow">
+                <f.icon className={`w-5 h-5 ${f.color}`} />
               </div>
-              <h3 className="font-display font-semibold text-foreground mb-2">{f.title}</h3>
+              <h3 className="font-display font-semibold text-foreground mb-1.5 text-[15px]">{f.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* Gamification section */}
+      {/* Gamification */}
       {quizzesPlayed > 0 && (
         <section className="relative z-10 pb-20 px-4 flex flex-col items-center gap-6">
           <PlayerStats />
@@ -209,8 +239,7 @@ const Index = () => {
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="relative z-10 text-center pb-8 text-xs text-muted-foreground">
+      <footer className="relative z-10 text-center pb-6 text-[11px] text-muted-foreground/60 tracking-wide">
         Built with ♥ by Smart Minds · QuizWhiz
       </footer>
     </div>

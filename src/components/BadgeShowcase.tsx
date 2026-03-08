@@ -2,9 +2,9 @@ import { motion } from 'framer-motion';
 import { useGamification, BADGE_DEFINITIONS } from '@/lib/gamification';
 import { Lock } from 'lucide-react';
 
-const container = {
+const stagger = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.04 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.03 } },
 };
 const item = { hidden: { opacity: 0, scale: 0.8 }, show: { opacity: 1, scale: 1 } };
 
@@ -15,12 +15,12 @@ const BadgeShowcase = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8 }}
+      transition={{ delay: 0.7 }}
       className="w-full max-w-3xl"
     >
-      <h3 className="font-display text-sm font-semibold text-foreground mb-3 text-center">Achievements</h3>
+      <h3 className="font-display text-xs font-semibold text-foreground mb-3 text-center uppercase tracking-wide">Achievements</h3>
       <motion.div
-        variants={container}
+        variants={stagger}
         initial="hidden"
         animate="show"
         className="grid grid-cols-4 sm:grid-cols-6 gap-2"
@@ -31,9 +31,9 @@ const BadgeShowcase = () => {
             <motion.div
               key={def.id}
               variants={item}
-              whileHover={{ scale: 1.12 }}
-              className={`relative flex flex-col items-center p-3 rounded-2xl transition-all ${
-                unlocked ? 'glass-premium' : 'opacity-25'
+              whileHover={{ scale: 1.1 }}
+              className={`relative flex flex-col items-center p-3 rounded-xl transition-all ${
+                unlocked ? 'glass-card' : 'opacity-20'
               }`}
               title={`${def.name}: ${def.description}`}
             >

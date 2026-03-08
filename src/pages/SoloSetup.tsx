@@ -28,7 +28,7 @@ const SoloSetup = () => {
       <div className="min-h-screen bg-gradient-mesh flex items-center justify-center">
         <div className="text-center glass-premium rounded-2xl p-8">
           <h2 className="font-display text-2xl font-bold text-foreground mb-4">Topic not found</h2>
-          <button onClick={() => navigate('/solo')} className="text-primary underline">Go back</button>
+          <button onClick={() => navigate('/solo')} className="text-primary text-sm font-semibold hover:underline">Go back</button>
         </div>
       </div>
     );
@@ -46,17 +46,12 @@ const SoloSetup = () => {
     <div className="min-h-screen bg-gradient-mesh relative overflow-hidden flex flex-col items-center justify-center px-4">
       <FloatingParticles />
 
-      <div className="absolute top-4 left-6 z-20">
-        <button
-          onClick={() => navigate('/solo')}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
+      <div className="absolute top-5 left-6 z-20">
+        <button onClick={() => navigate('/solo')} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
       </div>
-      <div className="absolute top-4 right-6 z-20">
-        <ThemeToggle />
-      </div>
+      <div className="absolute top-5 right-6 z-20"><ThemeToggle /></div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -74,13 +69,13 @@ const SoloSetup = () => {
             {topic.icon}
           </motion.span>
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-gradient">{topic.name}</h1>
-          <p className="text-muted-foreground text-sm mt-2">{maxQuestions} questions available</p>
+          <p className="text-sm text-muted-foreground mt-2">{maxQuestions} questions available</p>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-7">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-            <label className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-              <User className="w-4 h-4 text-primary" /> Player Name
+            <label className="text-xs font-semibold text-foreground mb-2.5 flex items-center gap-2 uppercase tracking-wide">
+              <User className="w-3.5 h-3.5 text-primary" /> Player Name
             </label>
             <div className="relative">
               <input
@@ -89,31 +84,31 @@ const SoloSetup = () => {
                 onChange={e => setName(e.target.value)}
                 placeholder="Enter your nickname"
                 maxLength={20}
-                className="w-full px-5 py-4 rounded-2xl glass-premium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all text-lg"
+                className="w-full px-5 py-4 rounded-xl glass-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all text-base border border-border/40"
               />
               {name.trim() && (
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <Sparkles className="w-5 h-5 text-accent" />
+                  <Sparkles className="w-4 h-4 text-accent" />
                 </motion.div>
               )}
             </div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-            <label className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Hash className="w-4 h-4 text-accent" /> Questions
+            <label className="text-xs font-semibold text-foreground mb-3 flex items-center gap-2 uppercase tracking-wide">
+              <Hash className="w-3.5 h-3.5 text-accent" /> Questions
             </label>
             <div className="grid grid-cols-5 gap-2">
               {questionCounts.filter(c => c <= maxQuestions).map(c => (
                 <motion.button
                   key={c}
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.92 }}
+                  whileHover={{ scale: 1.06 }}
+                  whileTap={{ scale: 0.93 }}
                   onClick={() => setCount(c)}
                   className={`py-3.5 rounded-xl font-display font-bold text-lg transition-all ${
                     count === c
-                      ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-premium'
-                      : 'glass-premium text-foreground hover:border-primary/30'
+                      ? 'bg-gradient-to-br from-primary to-neon-purple text-primary-foreground shadow-glow-primary'
+                      : 'glass-card text-foreground hover:border-primary/20'
                   }`}
                 >
                   {c}
@@ -128,9 +123,9 @@ const SoloSetup = () => {
               whileTap={{ scale: 0.97 }}
               onClick={handleStart}
               disabled={!name.trim() || starting}
-              className="w-full px-6 py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-display font-bold text-xl shadow-premium disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-all"
+              className="w-full px-6 py-5 rounded-xl bg-gradient-to-r from-primary to-neon-purple text-primary-foreground font-display font-bold text-lg shadow-glow-primary disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-all btn-ripple"
             >
-              {starting ? <Loader2 className="w-6 h-6 animate-spin" /> : <Play className="w-6 h-6" />}
+              {starting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
               {starting ? 'Loading...' : 'Start Quiz'}
             </motion.button>
           </motion.div>
