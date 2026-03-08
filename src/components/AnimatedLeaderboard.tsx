@@ -34,51 +34,48 @@ const AnimatedLeaderboard = ({ players, sessionId, maxShow = 8 }: AnimatedLeader
   const medals = ['🥇', '🥈', '🥉'];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <AnimatePresence mode="popLayout">
         {sorted.map((player, i) => {
           const isMe = player.sessionId === sessionId;
-
           return (
             <motion.div
               key={player.id}
               layout
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
+              exit={{ opacity: 0, x: 16 }}
               transition={{
                 layout: { type: 'spring', stiffness: 500, damping: 35 },
-                delay: i * 0.05,
+                delay: i * 0.04,
               }}
-              className={`flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 ${
-                isMe
-                  ? 'glass-premium border border-primary/40 animate-glow-border'
-                  : 'glass-premium'
+              className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${
+                isMe ? 'glass-premium gradient-border' : 'glass-card'
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${
-                  i === 0 ? 'bg-gold/20 text-gold' :
-                  i === 1 ? 'bg-silver/20 text-silver' :
-                  i === 2 ? 'bg-bronze/20 text-bronze' :
+                <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold ${
+                  i === 0 ? 'bg-gold/15 text-gold' :
+                  i === 1 ? 'bg-silver/15 text-silver' :
+                  i === 2 ? 'bg-bronze/15 text-bronze' :
                   'bg-secondary text-muted-foreground'
                 }`}>
                   {i < 3 ? medals[i] : i + 1}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="text-foreground font-medium">{player.name}</span>
-                  {player.isHost && <Crown className="w-3.5 h-3.5 text-quiz-yellow" />}
+                  <span className="text-foreground font-medium text-sm">{player.name}</span>
+                  {player.isHost && <Crown className="w-3 h-3 text-quiz-yellow" />}
                   {isMe && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-bold">YOU</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold uppercase tracking-wide">You</span>
                   )}
                 </div>
               </div>
               <motion.div
                 key={player.score}
                 initial={{ scale: 1 }}
-                animate={{ scale: [1, 1.15, 1] }}
+                animate={{ scale: [1, 1.12, 1] }}
                 transition={{ duration: 0.3 }}
-                className="font-mono font-bold text-primary text-lg"
+                className="font-mono font-bold text-primary text-base"
               >
                 <CountUpScore target={player.score} />
               </motion.div>

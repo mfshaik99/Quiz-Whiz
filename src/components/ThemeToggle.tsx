@@ -8,19 +8,19 @@ const ThemeToggle = () => {
 
   return (
     <motion.button
-      whileHover={{ scale: 1.1 }}
+      whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.9 }}
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="w-10 h-10 rounded-xl glass-premium flex items-center justify-center transition-colors hover:border-primary/30"
+      className="w-10 h-10 rounded-xl glass-card flex items-center justify-center transition-colors hover:border-primary/20"
       aria-label="Toggle theme"
     >
       <AnimatePresence mode="wait">
         {isDark ? (
-          <motion.div key="sun" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
+          <motion.div key="sun" initial={{ rotate: -90, opacity: 0, scale: 0.5 }} animate={{ rotate: 0, opacity: 1, scale: 1 }} exit={{ rotate: 90, opacity: 0, scale: 0.5 }} transition={{ duration: 0.2 }}>
             <Sun className="w-4 h-4 text-quiz-yellow" />
           </motion.div>
         ) : (
-          <motion.div key="moon" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
+          <motion.div key="moon" initial={{ rotate: 90, opacity: 0, scale: 0.5 }} animate={{ rotate: 0, opacity: 1, scale: 1 }} exit={{ rotate: -90, opacity: 0, scale: 0.5 }} transition={{ duration: 0.2 }}>
             <Moon className="w-4 h-4 text-primary" />
           </motion.div>
         )}
