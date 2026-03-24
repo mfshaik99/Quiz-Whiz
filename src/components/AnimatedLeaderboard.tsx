@@ -1,3 +1,4 @@
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown } from 'lucide-react';
 import { Player } from '@/lib/quiz-store';
