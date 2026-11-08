@@ -1,4 +1,44 @@
 # Welcome to your Our project
+# 🧠 QuizWhiz – The Knowledge Arena
+
+**Learn. Play. Compete. Conquer.**
+
+QuizWhiz is a free, interactive online quiz platform where users can test their knowledge, challenge friends, earn XP, unlock badges, and compete on a global leaderboard.
+
+## ✨ Features
+
+- 📚 550+ Curated Questions
+- 🎯 10 Knowledge Categories
+- 🎮 Solo Quiz Challenges
+- 👥 Create & Join Multiplayer Quizzes
+- ⚡ XP & Rewards System
+- 🏆 Global Leaderboard
+- 🏅 12+ Achievements & Badges
+- 🔥 Daily Streaks
+- 📊 Progress Tracking
+- 💯 100% Free – No Signup Required
+
+## 📚 Quiz Categories
+
+Mathematics, Physics, Chemistry, Programming, Artificial Intelligence, Machine Learning, Cybersecurity, Data Science, DevOps, and DSA.
+
+## 🎮 How It Works
+
+1. **Pick a Topic** – Choose your favorite category.
+2. **Answer Questions** – Test your knowledge against the clock.
+3. **Earn Rewards** – Collect XP, unlock badges, and climb the leaderboard.
+
+## 🎯 Our Mission
+
+Making learning fun, interactive, and competitive through gamification and technology.
+
+## 👨‍💻 Built By
+
+**Team Smart Minds**
+
+QuizWhiz – The Knowledge Arena
+
+**Learn. Play. Compete. Conquer.** ❤️
 
 ## Project info
 
